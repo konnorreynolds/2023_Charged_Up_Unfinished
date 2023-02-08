@@ -24,4 +24,10 @@ public final class Constants {
         public static final int leftVictorID4 = 4;
         public static final int leftTalonID5 = 5;
     }
+    public static final class ManipulatorConstants {
+        public static final int rotationSpark = 21;
+        public static final int extenderSpark = 22;
+        public static final int pinchSolenoidForward = 31;
+        public static final int pinchSolenoidReverse = 32;
+    }
 }
