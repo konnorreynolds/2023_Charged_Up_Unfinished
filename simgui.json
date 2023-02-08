@@ -1,0 +1,50 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Talon SRX[2]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon SRX[2]/Analog In": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[0]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[1]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[3]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Victor SPX[4]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "LiveWindow": {
+        ".status": {
+          "open": true
+        }
+      }
+    }
+  }
+}
