@@ -32,9 +32,14 @@ public class RobotContainer {
     // Arm rotation mapping
     xboxController.a().whileTrue(Commands.startEnd(() -> m_manipulator.lowerArm(.5), m_manipulator::stopRotation, m_manipulator));
     xboxController.y().whileTrue(Commands.startEnd(() -> m_manipulator.raiseArm(.5), m_manipulator::stopRotation, m_manipulator));
+    xboxController.povDown().onTrue(Commands.run(() -> m_manipulator.rotationSetpoint(0, .5), m_manipulator));
     // Arm extension mapping
     xboxController.x().whileTrue(Commands.startEnd(() -> m_manipulator.retractArm(.5), m_manipulator::stopExtender, m_manipulator));
     xboxController.b().whileTrue(Commands.startEnd(() -> m_manipulator.extendArm(.5), m_manipulator::stopExtender, m_manipulator));
+    xboxController.povUp().onTrue(Commands.run(() -> m_manipulator.extenderSetpoint(0, .5), m_manipulator));
+    // Intake pinch mapping
+    xboxController.povLeft().onTrue(Commands.run(m_manipulator::pinchOpen, m_manipulator));
+    xboxController.povRight().onTrue(Commands.run(m_manipulator::pinchClose, m_manipulator));
 
   }
 

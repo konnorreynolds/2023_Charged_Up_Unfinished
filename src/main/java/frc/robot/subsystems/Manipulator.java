@@ -75,10 +75,10 @@ public class Manipulator extends SubsystemBase {
     else if (rotationEncoder.getPosition() > setpoint) {
       rotationSpark.set(-power);
     }
-
+    /* 
     if (rotationEncoder.getPosition() >= setpoint) {
       rotationSpark.stopMotor();
-    }
+    } */
 
   }
 
@@ -90,10 +90,10 @@ public class Manipulator extends SubsystemBase {
     else if (extenderEncoder.getPosition() > setpoint) {
       extenderSpark.set(-power);
     }
-
+    /* 
     if (extenderEncoder.getPosition() >= setpoint) {
       extenderSpark.stopMotor();
-    }
+    }  */
 
   }
 
