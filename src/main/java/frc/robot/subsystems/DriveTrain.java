@@ -107,6 +107,16 @@ public class DriveTrain extends SubsystemBase {
     leftTalonID5.setNeutralMode(NeutralMode.Coast);
   }
 
+  // Subsystem command to stop all drive motors
+  public void stop() {
+    rightMotorID0.stopMotor();
+    rightMotorID1.stopMotor();
+    rightTalonID2.stopMotor();
+    leftMotorID3.stopMotor();
+    leftMotorID4.stopMotor();
+    leftTalonID5.stopMotor();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.autonomous.scoreReverse;
+import frc.robot.commands.drivetrain.DriveForTime;
 import frc.robot.commands.manipulator.ExtendArm;
 import frc.robot.commands.vision.AimAtBall;
 import frc.robot.subsystems.BallVision;
@@ -25,7 +29,24 @@ public class RobotContainer {
   public static Manipulator m_manipulator = new Manipulator();
   public static BallVision m_ballvision = new BallVision();
 
+  // Initializes autonomous chooser for Smart Dashboard
+  private SendableChooser<Command> autonChooser = new SendableChooser<>();
+  
+  // Creates all the autonomous commands
+  private final scoreReverse m_ScoreReverse = new scoreReverse(
+    m_manipulator, m_drivetrain, .5, 3);
+  private final DriveForTime m_Reverse = new DriveForTime(
+    m_drivetrain, .5, 3);
+
   public RobotContainer() {
+  
+  // Autonomous chooser for Smart Dashboard
+  autonChooser.setDefaultOption("scoreReverse", m_ScoreReverse);
+  autonChooser.addOption("Reverse", m_Reverse);
+
+  // Puts the autonomous chooser on the dashboard
+  SmartDashboard.putData(autonChooser);
+
     configureBindings();
   }
 
@@ -67,7 +88,7 @@ public class RobotContainer {
 
   // Autonomous commands 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autonChooser.getSelected();
   }
 
   public void teleopPeriodic() {
