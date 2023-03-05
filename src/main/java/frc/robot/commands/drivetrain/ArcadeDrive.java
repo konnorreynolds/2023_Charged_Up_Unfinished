@@ -20,6 +20,7 @@ public class ArcadeDrive extends CommandBase {
   public ArcadeDrive(DriveTrain drivetrain, DoubleSupplier forwardSpeed, DoubleSupplier rotationSpeed) {
     // Use addRequirements() here to declare subsystem dependencies.
 
+    // Initialize command requirements
     m_drivetrain = drivetrain;
     m_forwardSpeed = forwardSpeed;
     m_rotationSpeed = rotationSpeed;
@@ -36,8 +37,10 @@ public class ArcadeDrive extends CommandBase {
   @Override
   public void execute() {
 
+    // Drive the robot with arcadeDrive perameters
     m_drivetrain.arcadeDrive(m_forwardSpeed.getAsDouble(), m_rotationSpeed.getAsDouble());
 
+    // Runs the baseSpeed subsytem command while ArcadeDrive command is active
     m_drivetrain.baseSpeed();
 
 

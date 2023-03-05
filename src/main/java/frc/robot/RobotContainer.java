@@ -6,47 +6,66 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.drivetrain.ArcadeDrive;
+import frc.robot.commands.manipulator.ExtendArm;
+import frc.robot.commands.vision.AimAtBall;
+import frc.robot.subsystems.BallVision;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Manipulator;
 
 public class RobotContainer {
 
-  public static CommandXboxController xboxController = new CommandXboxController(OIConstants.xboxController);
+
+  // Initializes controllers and subsystems for command mapping uses
+  public static CommandXboxController drController = new CommandXboxController(OIConstants.drController);
+  public static CommandJoystick opJoystick = new CommandJoystick(OIConstants.opJoystick);
   public static DriveTrain m_drivetrain = new DriveTrain();
   public static Manipulator m_manipulator = new Manipulator();
+  public static BallVision m_ballvision = new BallVision();
+
   public RobotContainer() {
     configureBindings();
   }
 
   private void configureBindings() {
-    m_drivetrain.setDefaultCommand(
-      new ArcadeDrive(m_drivetrain, () -> xboxController.getRawAxis(4), () -> xboxController.getRawAxis(1))
-      );
 
-    xboxController.leftBumper().whileTrue(Commands.run(m_drivetrain::slow));
-    xboxController.rightBumper().whileTrue(Commands.run(m_drivetrain::boost));
-    xboxController.start().toggleOnTrue(Commands.startEnd(m_drivetrain::setIdleBrake, m_drivetrain::setIdleCoast));
-    // Arm rotation mapping
-    xboxController.a().whileTrue(Commands.startEnd(() -> m_manipulator.lowerArm(.5), m_manipulator::stopRotation, m_manipulator));
-    xboxController.y().whileTrue(Commands.startEnd(() -> m_manipulator.raiseArm(.5), m_manipulator::stopRotation, m_manipulator));
-    xboxController.povDown().onTrue(Commands.run(() -> m_manipulator.rotationSetpoint(0, .5), m_manipulator));
-    // Arm extension mapping
-    xboxController.x().whileTrue(Commands.startEnd(() -> m_manipulator.retractArm(.5), m_manipulator::stopExtender, m_manipulator));
-    xboxController.b().whileTrue(Commands.startEnd(() -> m_manipulator.extendArm(.5), m_manipulator::stopExtender, m_manipulator));
-    xboxController.povUp().onTrue(Commands.run(() -> m_manipulator.extenderSetpoint(0, .5), m_manipulator));
-    // Intake pinch mapping
-    xboxController.povLeft().onTrue(Commands.run(m_manipulator::pinchOpen, m_manipulator));
-    xboxController.povRight().onTrue(Commands.run(m_manipulator::pinchClose, m_manipulator));
+    /* Drivetrain Command to drive the robot */
+    m_drivetrain.setDefaultCommand(new AimAtBall(m_drivetrain, m_ballvision, drController));
+
+    /* ExtendArm default command to extend the arm with Joystick axis */
+    m_manipulator.setDefaultCommand(new ExtendArm(m_manipulator, opJoystick));
+
+    /* Driver Controller Inputs */
+    // Speed Controls
+    drController.leftBumper().whileTrue(Commands.run(m_drivetrain::slow, m_drivetrain));
+    drController.rightBumper().whileTrue(Commands.run(m_drivetrain::boost, m_drivetrain));
+    // Coast/Brake Control
+    drController.start().toggleOnTrue(Commands.startEnd(m_drivetrain::setIdleBrake, m_drivetrain::setIdleCoast));
+    // Vision WIP
+    drController.a().toggleOnTrue(Commands.startEnd(m_ballvision::conePipe, m_ballvision::cubePipe, m_ballvision));
+
+    /* Operator Joystick Inputs */
+    // Arm rotation control
+    opJoystick.button(2).whileTrue(Commands.startEnd(() -> m_manipulator.lowerArm(0.5),() -> m_manipulator.stopRotation(), m_manipulator));
+    opJoystick.button(3).whileTrue(Commands.startEnd(() -> m_manipulator.raiseArm(.5), m_manipulator::stopRotation, m_manipulator));
+    // Intake pinch control
+    opJoystick.button(1).onTrue(Commands.runOnce(m_manipulator::pinchToggle, m_manipulator));
 
   }
 
-  public CommandXboxController getXboxController(){
-    return xboxController;
+  // Forwards driver controller to commands for inline use
+  public CommandXboxController getXboxController() {
+    return drController;
 }
 
+  // Forwards operator joystick to commands for inline use
+  public CommandJoystick getJoystick() {
+    return opJoystick;
+  }
+
+  // Autonomous commands 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
