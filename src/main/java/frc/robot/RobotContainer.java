@@ -77,8 +77,8 @@ public class RobotContainer {
 
     /* Operator Joystick Inputs */
     // Arm rotation control
-    opJoystick.button(2).whileTrue(Commands.startEnd(() -> m_manipulator.retractArm(.3),() -> m_manipulator.stopExtender(), m_manipulator));
-    opJoystick.button(3).whileTrue(Commands.startEnd(() -> m_manipulator.extendArm(.3),() -> m_manipulator.stopExtender(), m_manipulator));
+    opJoystick.button(2).whileTrue(Commands.startEnd(() -> m_manipulator.extendArm(.3),() -> m_manipulator.stopExtender(), m_manipulator));
+    opJoystick.button(3).whileTrue(Commands.startEnd(() -> m_manipulator.retractArm(.3),() -> m_manipulator.stopExtender(), m_manipulator));
     opJoystick.button(5).whileTrue(Commands.run(() -> new liftSetpoint(m_manipulator, () -> 30, () -> .3), m_manipulator));
     // Intake pinch control
     opJoystick.button(1).onTrue(Commands.runOnce(m_manipulator::pinchToggle, m_manipulator));
