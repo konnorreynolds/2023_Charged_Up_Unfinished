@@ -4,30 +4,35 @@
 
 package frc.robot.commands.drivetrain;
 
-import java.util.function.DoubleSupplier;
+import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
-public class ArcadeDrive extends CommandBase {
-  /** Creates a new ArcadeDrive. */
+public class GyroTurn extends CommandBase {
+  /** Creates a new GyroTurn. */
 
   private final DriveTrain m_drivetrain;
-  private final DoubleSupplier m_forwardSpeed;
-  private final DoubleSupplier m_rotationSpeed;
+  private final int m_angle;
+  private PIDController turnController;
+  AHRS gyro;
 
-
-  public ArcadeDrive(DriveTrain drivetrain, DoubleSupplier forwardSpeed, DoubleSupplier rotationSpeed) {
+  public GyroTurn(DriveTrain drivetrain, int angle) {
     // Use addRequirements() here to declare subsystem dependencies.
 
-    // Initialize command requirements
     m_drivetrain = drivetrain;
-    m_forwardSpeed = forwardSpeed;
-    m_rotationSpeed = rotationSpeed;
+    m_angle = angle;
 
-    addRequirements(m_drivetrain);
+    gyro = new AHRS(SPI.Port.kMXP);
+
+    addRequirements(drivetrain);
+
+    SmartDashboard.putData("Gyro", gyro);
+
   }
-  
 
   // Called when the command is initially scheduled.
   @Override
@@ -37,15 +42,15 @@ public class ArcadeDrive extends CommandBase {
   @Override
   public void execute() {
 
-    // Drive the robot with arcadeDrive perameters
-    m_drivetrain.arcadeDrive(m_forwardSpeed.getAsDouble(), m_rotationSpeed.getAsDouble());
+    double rotationSpeed = turnController.calculate(gyro.getAngle(), m_angle);
+
+    m_drivetrain.arcadeDrive(0, rotationSpeed);
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    m_drivetrain.stop();
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override

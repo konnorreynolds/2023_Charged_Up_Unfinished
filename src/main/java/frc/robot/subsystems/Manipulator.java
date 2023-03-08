@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ManipulatorConstants;
 
@@ -20,48 +21,48 @@ public class Manipulator extends SubsystemBase {
   /** Creates a new Manuipulator. */
 
   // Initializes the Spark Max controllers for the NEOs 
-  private CANSparkMax rotationSpark = new CANSparkMax(ManipulatorConstants.rotationSpark, MotorType.kBrushless);
+  private static CANSparkMax liftSpark = new CANSparkMax(ManipulatorConstants.liftSpark, MotorType.kBrushless);
   private CANSparkMax extenderSpark = new CANSparkMax(ManipulatorConstants.extenderSpark, MotorType.kBrushless);
 
   // Initialized the solenoid for the intake pinch
   private Solenoid pinchSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
 
   // Initializing the encoders for the sparks
-  static RelativeEncoder rotationEncoder;
-  static RelativeEncoder extenderEncoder;
+  RelativeEncoder liftEncoder;
+  RelativeEncoder extenderEncoder;
 
   // Initializing the PID controllers for the Sparks
-  public static SparkMaxPIDController rotationPID;
+  public static SparkMaxPIDController liftPID;
   public static SparkMaxPIDController extenderPID;
 
   public Manipulator() {
     // Setting the Idle mode to brake so the arm and extender don't move when not wanted
-    rotationSpark.setIdleMode(IdleMode.kBrake);
+    liftSpark.setIdleMode(IdleMode.kBrake);
     extenderSpark.setIdleMode(IdleMode.kBrake);
 
     // Resetting the encoders and PID loop in the Sparks
-    rotationSpark.restoreFactoryDefaults();
+    liftSpark.restoreFactoryDefaults();
     extenderSpark.restoreFactoryDefaults();
 
     // Getting the PID controllers for the Sparks
-    rotationPID = rotationSpark.getPIDController();
+    liftPID = liftSpark.getPIDController();
     extenderPID = extenderSpark.getPIDController();
 
     // Getting the encoders for the sparks
-    rotationEncoder = rotationSpark.getEncoder();
+    liftEncoder = liftSpark.getEncoder();
     extenderEncoder = extenderSpark.getEncoder();
 
     // Setting the encoders as a feedback device for the PID Loop
-    rotationPID.setFeedbackDevice(rotationEncoder);
+    liftPID.setFeedbackDevice(liftEncoder);
     extenderPID.setFeedbackDevice(extenderEncoder);
 
     // Intake lift PID loop initialization
-    rotationPID.setP(0);
-    rotationPID.setI(0);
-    rotationPID.setD(0);
-    rotationPID.setIZone(0);
-    rotationPID.setFF(0);
-    rotationPID.setOutputRange(-1, 1);
+    liftPID.setP(0);
+    liftPID.setI(0);
+    liftPID.setD(0);
+    liftPID.setIZone(0);
+    liftPID.setFF(0);
+    liftPID.setOutputRange(-1, 1);
 
     // Intake extender PID loop initialization
     extenderPID.setP(0);
@@ -72,14 +73,27 @@ public class Manipulator extends SubsystemBase {
     extenderPID.setOutputRange(-1, 1);
   }
 
+  public void teleopInit() {
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // Puts encoder data onto the dashboard
+    SmartDashboard.putNumber("Lift Position", liftEncoder.getPosition());
+    SmartDashboard.putNumber("Extender Position", extenderEncoder.getPosition());
+
   }
 
   // WIP Intake lift setpoint subsystem command
-  public void rotationSetpoint(double setpoint) {
-    rotationPID.setReference(setpoint, ControlType.kPosition);
+  public void liftSetpoint(double setpoint, double power) {
+    liftSpark.set(power);
+
+    if (liftEncoder.getPosition() >= setpoint) {
+      liftSpark.stopMotor();
+    }
+
   }
 
   // WIP Intake extender setpoint subsystem command
@@ -89,37 +103,41 @@ public class Manipulator extends SubsystemBase {
 
   // Intake lift raise subsystem command
   public void raiseArm(double power) {
-    rotationSpark.set(power);
+    liftSpark.set(power);
   }
 
   // Intake lift lower subsystem command
   public void lowerArm(double power) {
-    rotationSpark.set(-power);
+    liftSpark.set(-power);
   }
 
   // Intake lift stop subsystem command
-  public void stopRotation() {
-    rotationSpark.set(0);
+  public void stopLift() {
+    liftSpark.stopMotor();
   }
 
   // Intake extender extension subsystem command
   public void extendArm(double power) {
-    extenderSpark.set(power);
+    extenderSpark.set(power / 2);
   }
 
   // Intake extender retract subsystem command
   public void retractArm(double power) {
-    extenderSpark.set(-power);
+    extenderSpark.set(-power / 2);
   }
 
   // Intake extender stop subsystem command
   public void stopExtender() {
-    extenderSpark.set(0);
+    extenderSpark.stopMotor();
   }
 
   // Intake pinch subsystem command
   public void pinchToggle() {
     pinchSolenoid.toggle();
+  }
+
+  public void resetLiftEncoder() {
+    liftEncoder.setPosition(0);
   }
 
 }

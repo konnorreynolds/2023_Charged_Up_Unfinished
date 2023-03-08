@@ -59,11 +59,18 @@ public class AimAtBall extends CommandBase {
   // arcadeDrive(forwardSpeed, rotationSpeed)
     else {
       this._driveTrain.arcadeDrive(this._controller.getRawAxis(4), this._controller.getRawAxis(1));
-    
-    }
 
-    // Sets baseSpeed command to run while AimAtBall is active
-    _driveTrain.baseSpeed();
+      if (this._controller.leftBumper().getAsBoolean()) {
+        this._driveTrain.slow();
+      }
+      else if (this._controller.rightBumper().getAsBoolean()) {
+        this._driveTrain.boost();
+      }
+      else {
+        this._driveTrain.baseSpeed();
+      }
+
+    }
 
   }
 
