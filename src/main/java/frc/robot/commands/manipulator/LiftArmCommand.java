@@ -4,42 +4,28 @@
 
 package frc.robot.commands.manipulator;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Manipulator;
 
-public class liftSetpoint extends CommandBase {
-  // Create an object for the Manipulator
-  private final Manipulator _manipulator;
-
-  // Create DoubleSuppliers for the setpoint and power
-  private final DoubleSupplier _setpoint, _power;
-
-  /** Creates a new MoveToPosition. */
-  public liftSetpoint(Manipulator manipulator, DoubleSupplier setpoint, DoubleSupplier power) {
-    // Use the Manipulator subsystem to gain access to its commands
-    this._manipulator = manipulator;
-
-    // Set the setpoint and power
-    this._setpoint = setpoint;
-    this._power = power;
-
+public class LiftArmCommand extends CommandBase {
+  /** Creates a new LiftArmCommand. */
+  private Manipulator _manipulator;
+  private double _power;
+  public LiftArmCommand(Manipulator manipulator, double liftPower) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(manipulator);
+  this._manipulator = manipulator;
+  this._power = liftPower;
+  
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    // Reset the encoder
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // Call the moveToSetpoint method
-    this._manipulator.liftSetpoint(this._setpoint.getAsDouble(), this._power.getAsDouble());
+    this._manipulator.raiseArm(this._power);
   }
 
   // Called once the command ends or is interrupted.

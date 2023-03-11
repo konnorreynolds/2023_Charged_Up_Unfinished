@@ -4,16 +4,14 @@
 
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
@@ -29,62 +27,23 @@ public class DriveTrain extends SubsystemBase {
   private MotorControllerGroup leftMotors = new MotorControllerGroup(leftMotorID3, leftMotorID4, leftTalonID5);
   private DifferentialDrive drive = new DifferentialDrive(leftMotors, rightMotors);
 
-  // Vision
-  final double LINEAR_P = 0.1;
-  final double LINEAR_D = 0.0;
-  PIDController forwardController = new PIDController(LINEAR_P, 0, LINEAR_D);
+  AHRS navx = new AHRS(SPI.Port.kMXP);
 
-  final static double ANGULAR_P = 0.04;
-  final static double ANGULAR_D = 0.0;
-  public static PIDController turnController = new PIDController(ANGULAR_P, 0, ANGULAR_D);
-
-  final double CAMERA_HEIGHT_METERS = Units.inchesToMeters(24);
-    final double TARGET_HEIGHT_METERS = Units.feetToMeters(5);
-    // Angle between horizontal and the camera.
-    final double CAMERA_PITCH_RADIANS = Units.degreesToRadians(0);
-
-    // How far from the target we want to be
-    final double GOAL_RANGE_METERS = Units.feetToMeters(3);
-
-    private double _targetYaw;
-    private boolean _hasTarget;
-
-    public void visionTurn(DoubleSupplier speedSupplier, boolean hasTarget, double DEADZONE, double targetYaw) {
-      double joyStickSpeed = speedSupplier.getAsDouble();
-      double speed;
-      this._hasTarget = hasTarget;
-      this._targetYaw = targetYaw;
-      
-      if (this._hasTarget){
-        speed = turnController.calculate(this._targetYaw, 0);
-      }
-      else{
-        //deadzone clause, deadzone is 0.12
-        if(Math.abs(joyStickSpeed) > DEADZONE) {
-          speed = joyStickSpeed*.75;
-        }
-        else {
-          speed = 0;
-        }
-      }
-  
-      drive.setMaxOutput(speed);
-    }
-
-  public void arcadeDrive(double forwardSpeed, double rotationSpeed) {
-    drive.arcadeDrive(forwardSpeed, rotationSpeed);
-  }
 
   /* Speed control subsystem commands */
   //
   public void baseSpeed() {
-    drive.setMaxOutput(.6);
+    drive.setMaxOutput(.7);
   }
   public void boost() {
     drive.setMaxOutput(1);
   }
   public void slow() {
     drive.setMaxOutput(.30);
+  }
+
+  public void arcadeDrive(double forwardSpeed, double rotationSpeed) {
+    drive.arcadeDrive(forwardSpeed, rotationSpeed);
   }
 
   // Subsystem command to set all drive motors to brake to be used in a toggleOnTrue command
@@ -117,11 +76,37 @@ public class DriveTrain extends SubsystemBase {
     leftTalonID5.stopMotor();
   }
 
+  public double getYaw() {
+    return navx.getYaw();
+  }
+  public double getPitch() {
+    return navx.getPitch();
+  }
+  public double getRoll() {
+    return navx.getRoll();
+  }
+  public double getAngle() {
+    return navx.getAngle();
+  }
+  public void calibrateGyro() {
+    navx.calibrate();
+  }
+  public void zeroGyro() {
+    navx.reset();
+    navx.zeroYaw();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
 
-    
+    SmartDashboard.putNumber("Yaw", navx.getYaw());
+    SmartDashboard.putNumber("Pitch", navx.getPitch());
+    SmartDashboard.putNumber("Roll", navx.getRoll());
+
+    leftMotorID3.setInverted(true);
+    leftMotorID4.setInverted(true);
+    leftTalonID5.setInverted(true);
     
   }
 

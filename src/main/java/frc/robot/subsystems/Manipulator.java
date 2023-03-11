@@ -73,7 +73,7 @@ public class Manipulator extends SubsystemBase {
     extenderPID.setOutputRange(-1, 1);
   }
 
-  public void teleopInit() {
+  public void robotInit() {
   }
 
   @Override
@@ -132,8 +132,11 @@ public class Manipulator extends SubsystemBase {
   }
 
   // Intake pinch subsystem command
-  public void pinchToggle() {
-    pinchSolenoid.toggle();
+  public void pinchTrue() {
+    pinchSolenoid.set(true);
+  }
+  public void pinchFalse() {
+    pinchSolenoid.set(false);
   }
 
   public void resetLiftEncoder() {

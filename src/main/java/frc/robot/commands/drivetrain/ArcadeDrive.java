@@ -7,21 +7,24 @@ package frc.robot.commands.drivetrain;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.DriveTrain;
 
 public class ArcadeDrive extends CommandBase {
   /** Creates a new ArcadeDrive. */
 
   private final DriveTrain m_drivetrain;
+  private final CommandXboxController m_drController;
   private final DoubleSupplier m_forwardSpeed;
   private final DoubleSupplier m_rotationSpeed;
 
 
-  public ArcadeDrive(DriveTrain drivetrain, DoubleSupplier forwardSpeed, DoubleSupplier rotationSpeed) {
+  public ArcadeDrive(DriveTrain drivetrain, DoubleSupplier forwardSpeed, DoubleSupplier rotationSpeed, CommandXboxController drController) {
     // Use addRequirements() here to declare subsystem dependencies.
 
     // Initialize command requirements
     m_drivetrain = drivetrain;
+    m_drController = drController;
     m_forwardSpeed = forwardSpeed;
     m_rotationSpeed = rotationSpeed;
 
@@ -39,6 +42,17 @@ public class ArcadeDrive extends CommandBase {
 
     // Drive the robot with arcadeDrive perameters
     m_drivetrain.arcadeDrive(m_forwardSpeed.getAsDouble(), m_rotationSpeed.getAsDouble());
+
+    if (m_drController.leftBumper().getAsBoolean()) {
+      m_drivetrain.slow();
+    }
+    else if (m_drController.rightBumper().getAsBoolean()) {
+      m_drivetrain.boost();
+    }
+    else {
+      m_drivetrain.baseSpeed();
+    }
+
   }
 
   // Called once the command ends or is interrupted.
